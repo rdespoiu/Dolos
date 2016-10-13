@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, shrink-to-fit=no, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Dolos Administrative Panel</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="{{url_for('static', filename='css/bootstrap.min.css')}}" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="{{url_for('static', filename='css/simple-sidebar.css')}}" rel="stylesheet">
+
+    <link href="{{url_for('static', filename='css/autocomplete.css')}}" rel="stylesheet">
+
+    <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+    <div id="loadingOverlay">
+      <div class="loader"></div>
+    </div>
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand">
+                    <a href="/">
+                        Dolos
+                    </a>
+                </li>
+                {% if user != None %}
+                  <li>
+                    <a href="?id=twitter_users">Twitter Users</a>
+                  </li>
+                  <li>
+                    <a href="?id=tweets">Tweets</a>
+                  </li>
+                  <li>
+                    <a href="?id=dolostweets">Generated Tweets</a>
+                  </li>
+                {% else %}
+
+                  <li>
+                    <a href="#">Login</a>
+                  </li>
+                {% endif %}
+            </ul>
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+                  <a href="#menu-toggle" class="btn btn-default" id="menu-toggle"><i class="fa fa-bars"></i></a>
+                  <div class="col-lg-12">
+                  {%- for category, message in get_flashed_messages(with_categories = true) %}
+
+                     <div class = "alert alert-danger">
+                        {{ message }}
+                     </div>
+                  {%- endfor %}
+                  {% if user == None %}
+                      <h3>Please log in to use Dolos</h3>
+                      <form action = "{{ request.path }}" method = "post">
+                         <input type = "text" name = "username" placeholder = "Username" /><br>
+                         <input type = "password" name = "password" placeholder = "Password" /><br>
+                         <input type = "submit" value = "Submit" />
+                      </form>
+                  {% else %}
+                    {% if request.args.get('id') == 'twitter_users' %}
+                      <h1>Add User</h1>
+                      <div id="addNewUser">
+                        <p>Please enter a valid Twitter username</p>
+                        <p id="newUserStatusMessage" style="color: red;"></p>
+                        <input id="addUser" type="text" name="user">
+                        <button type="button" class="btn btn-default" onclick="addNewUser()">Add User</button>
+                      </div>
+                      <h1>View Users</h1>
+                      <p id="userTableStatusMessage" style="color: red;"></p>
+                      <div id="userTable">
+                        <table class="table">
+                        <thead>
+                          <tr>
+                            <th>Username</th>
+                            <th>User ID</th>
+                            <th>Generate Tweet</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for user in twitterUsers %}
+                            <tr>
+                              <td><a href="http://www.twitter.com/{{user.username}}">{{user.username}}</a></td>
+                              <td>{{user.userid}}</td>
+                              <td><button type="button" class="btn btn-default" onclick="sendRequest('createtweet',   '{{user.username}}')">Post Tweet</button></td>
+                            </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                      </div>
+                    {% elif request.args.get('id') == 'tweets' %}
+                      <h1>View Tweets</h1>
+                      <p>Enter a username to view their tweets</p>
+                      <div class="form-input">
+                          <input type="text" name="tweets" id="autocomplete" class="form-control">
+                      </div>
+
+                      <div id="tweetOutput">
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th>Tweet ID</th>
+                              <th>Username</th>
+                              <th>User ID</th>
+                              <th>Content</th>
+                            </tr>
+                          </thead>
+                          <tbody id="tweetOutputBody">
+                          </tbody>
+                        </table>
+                      </div>
+                    {% elif request.args.get('id') == 'dolostweets' %}
+                      <h1>View Dolos Tweets</h1>
+                      <p>Enter a username to view their tweets</p>
+                      <div class="form-input">
+                        <input type="text" name="dolosTweets" id="dolosAutocomplete" class="form-control">
+                      </div>
+
+                      <div id="dolosTweetOutput">
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th>Tweet ID</th>
+                              <th>Username</th>
+                              <th>Date</th>
+                              <th>Content</th>
+                            </tr>
+                          </thead>
+                          <tbody id="dolosTweetOutputBody">
+                          </tbody>
+                        </table>
+                      </div>
+                    {% else %}
+                      <h1>Dolos Dashboard</h1>
+                      <p>To install requirements, use <code>pip install -r requirements.txt</code></p>
+
+
+                      <p>Make sure to keep all page content within the <code>#page-content-wrapper</code>.</p>
+                    {% endif %}
+                  {% endif %}
+                  </div>
+                </div>
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- FontAwesome -->
+    <script src="https://use.fontawesome.com/367053ab8b.js"></script>
+
+    <!-- jQuery -->
+    <script src="{{url_for('static', filename='js/jquery.js')}}"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
+
+    <!-- Menu Toggle Script -->
+    <script>
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+    </script>
+
+    <script type="text/javascript" src="{{url_for('static', filename='js/jquery-1.9.1.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/jquery.autocomplete.min.js')}}"></script>
+
+
+    <!-- BEGIN AUTOCOMPLETE SCRIPT -->
+    <script>
+      $(function(){
+        var users = [
+          { value: 'View All', data: 'View All'},
+          {% for user in twitterUsers %}
+            { value: '{{user.username}}', data: '{{user.username}}'},
+          {% endfor %}
+        ];
+
+        // setup autocomplete function pulling from users[] array
+        $('#autocomplete').autocomplete({
+          lookup: users,
+          onSelect: function (suggestion) {
+            $('#tweetOutputBody tr').remove();
+            {% for tweet in userTweets %}
+              if (suggestion.data == '{{tweet.username}}') {
+                $('#tweetOutputBody').append(
+                  `<tr>
+                     <td>{{tweet.tweetid}}</td>
+                     <td>{{tweet.username}}</td>
+                     <td>{{tweet.userid}}</td>
+                     <td>{{tweet.text}}</td>
+                   </tr>`
+                );
+
+              } else if (suggestion.data == 'View All') {
+                $('#tweetOutputBody').append(
+                  `<tr>
+                     <td>{{tweet.tweetid}}</td>
+                     <td>{{tweet.username}}</td>
+                     <td>{{tweet.userid}}</td>
+                     <td>{{tweet.text}}</td>
+                   </tr>`
+                );
+              }
+            {% endfor %}
+          }
+        });
+
+        $('#dolosAutocomplete').autocomplete({
+          lookup: users,
+          onSelect: function(suggestion) {
+            $('#dolosTweetOutputBody tr').remove();
+            {% for tweet in dolosTweets %}
+              if (suggestion.data == '{{tweet.user}}') {
+                $('#dolosTweetOutputBody').append(
+                  `<tr>
+                    <td>{{tweet.id}}</td>
+                    <td>{{tweet.user}}</td>
+                    <td>{{tweet.date}}</td>
+                    <td>{{tweet.tweet}}</td>
+                  </tr>`
+                );
+              } else if (suggestion.data == 'View All') {
+                $('#dolosTweetOutputBody').append(
+                  `<tr>
+                     <td>{{tweet.id}}</td>
+                     <td>{{tweet.user}}</td>
+                     <td>{{tweet.date}}</td>
+                     <td>{{tweet.tweet}}</td>
+                   </tr>`
+                );
+              }
+            {% endfor %}
+          }
+        });
+
+
+      });
+    </script>
+    <!-- END AUTOCOMPLETE SCRIPT -->
+
+    <!-- BEGIN DATA REQUEST SCRIPT -->
+    <script>
+      var addNewUser = () => {
+        userToAdd = document.getElementById('addUser').value;
+
+        if (userToAdd) {
+          document.getElementById('newUserStatusMessage').innerHTML = '';
+          sendRequest('getuser', userToAdd);
+        } else {
+          document.getElementById('newUserStatusMessage').innerHTML = 'Please enter a username'
+        }
+      }
+
+      var sendRequest = (page, username) => {
+        var confirmation;
+
+        if      (page == 'createtweet') confirmation = confirm(`Post new tweet for user: ${username}?`);
+        else if (page == 'getuser')     confirmation = confirm(`Add user: ${userToAdd}? Please be aware that too many data scrape calls to Twitter's API will initiate a lockout whose time increases exponentially with each failed attempt.`);
+
+        if (confirmation) {
+          function reqListener() {
+            console.log(this.responseText);
+            location.reload();
+          }
+
+          document.getElementById('loadingOverlay').style.display = 'block';
+          var oReq = new XMLHttpRequest();
+          oReq.addEventListener('load', reqListener);
+          oReq.open('GET', `/${page}?username=${username}`);
+          oReq.send();
+        }
+      };
+    </script>
+    <!-- END DATA REQUEST SCRIPT -->
+</body>
+
+</html>
