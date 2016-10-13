@@ -9,7 +9,6 @@ from Controllers.data_scraper import DataScraper
 from Controllers.get_user_data import GetUserData
 from Controllers.create_tweet import CreateTweet
 from Utility.timestamp import timestamp
-from Utility.progressbar import progress
 from Utility.generatehash import generateHash, generateSalt
 from Utility.results import results
 from shared.models import db
@@ -68,7 +67,7 @@ def index():
                                 user = loggedInUser,
                                 twitterUsers = Users.query.all(),
                                 userTweets = Tweets.query.order_by(Tweets.tweetid.desc()),
-                                dolosTweets = GeneratedTweets.query.order_by(GeneratedTweets.date.desc()),
+                                dolosTweets = GeneratedTweets.query.order_by(GeneratedTweets.date.desc()))
     else:
         return render_template('index.html', user = loggedInUser)
 
