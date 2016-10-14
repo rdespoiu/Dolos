@@ -1,1 +1,1 @@
-web: gunicorn dolos
+web: gunicorn __main__
