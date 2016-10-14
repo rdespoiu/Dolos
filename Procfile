@@ -1,1 +1,1 @@
-web: gunicorn dolos.wsgi
+web: gunicorn dolos
