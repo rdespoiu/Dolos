@@ -10,10 +10,9 @@ def generateHash(salt, inp):
 def generateSalt():
     return uuid.uuid4().hex
 
-
 def addUser(username, password):
     BASE_DIR = os.path.dirname(os.path.abspath('./Dolos'))
-    DB_PATH = os.path.join(BASE_DIR, 'dolos2.sqlite3')
+    DB_PATH = os.path.join(BASE_DIR, 'dolos.sqlite3')
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -30,11 +29,3 @@ def addUser(username, password):
 
     print 'New user added'
     print 'Username: {}'.format(username)
-
-
-'''
-    cursor.execute('SELECT * FROM admins')
-    results = cursor.fetchall()
-    for k in results:
-        print k
-'''
