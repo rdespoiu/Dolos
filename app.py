@@ -120,28 +120,3 @@ def get_user_tweets():
             return results('An error occurred: {}'.format(str(e)))
     else:
         return results('User ID or username required')
-
-# Add new administrator.
-@app.route('/newadmin', methods = ['GET', 'POST'])
-def newAdmin():
-    global loggedInUser
-
-    if not loggedInUser:
-        return results('Unauthorized access attempt. Please ensure you are authenticated.')
-
-    if request.method == 'POST':
-        if not request.form['username'] or not request.form['password']:
-            return results('Username and password are required')
-
-        duplicate = Admins.query.filter_by(username = request.form['username']).first()
-
-        if duplicate:
-            return results('Username already exists. Try a new one.')
-
-        admin = Admins(request.form['username'], request.form['password'])
-        db.session.add(admin)
-        db.session.commit()
-
-        return results('Successfully added user: {}'.format(request.form['username']))
-
-    return render_template('newadmin.html')
